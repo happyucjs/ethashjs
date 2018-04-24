@@ -1,5 +1,5 @@
-const Ethash = require('../index.js')
-const Block = require('ethereumjs-block')
+const Huchash = require('../index.js')
+const Block = require('happyucjs-block')
 const tape = require('tape')
 const levelup = require('levelup')
 const memdown = require('memdown')
@@ -12,7 +12,7 @@ var cacheDB = levelup('', {
 tape('testing good block', function (t) {
   t.plan(3)
 
-  var e = new Ethash(cacheDB)
+  var e = new Huchash(cacheDB)
 
   // run tests
   async.series([
