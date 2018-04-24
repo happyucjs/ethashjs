@@ -21,7 +21,7 @@
     "happyuc",
     "POW"
   ],
-  "author": "mjbecze <mjbecze@gmail.com>",
+  "author": "dreamxyp <dreamxyp@gmail.com>",
   "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/happyucjs/huchashjs/issues"
@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
-    "happyucjs-block": "^1.2.2",
-    "happyucjs-testing": "0.0.1",
+    "happyucjs-block": "/Users/dreamxyp/Transcend/happyuc-js/block/",
+    "happyucjs-testing": "/Users/dreamxyp/Transcend/happyuc-js/testing/",
     "istanbul": "^0.4.1",
     "levelup": "^1.3.0",
     "memdown": "^1.1.0",
