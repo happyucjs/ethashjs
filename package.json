@@ -1,9 +1,10 @@
 {
-  "name": "huchashjs",
-  "version": "0.0.7",
-  "description": "an huchash implementation in JS",
+  "name": "ichashjs",
+  "version": "0.0.1",
+  "description": "an irchain hash implementation in JS",
   "main": "index.js",
   "directories": {
+    "example": "example",
     "test": "tests"
   },
   "scripts": {
@@ -14,33 +15,32 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/happyucjs/huchashjs.git"
+    "url": "git+https://github.com/icjs/ichashjs.git"
   },
   "keywords": [
-    "huchash",
-    "happyuc",
+    "ichash",
+    "irchain",
     "POW"
   ],
-  "author": "dreamxyp <dreamxyp@gmail.com>",
+  "author": "IrChain Team <contact@irchain.io>",
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/happyucjs/huchashjs/issues"
+    "url": "https://github.com/icjs/ichashjs/issues"
   },
-  "homepage": "https://github.com/happyucjs/huchashjs#readme",
+  "homepage": "https://github.com/icjs/ichashjs#readme",
   "dependencies": {
     "async": "^2.1.2",
     "buffer-xor": "^2.0.1",
-    "happyucjs-util": "^5.0.1",
+    "icjs-util": "^0.0.1",
+    "icjs-block": "git+https://github.com/icjs/icjs-block.git",
     "miller-rabin": "^4.0.0"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
-    "happyucjs-block": "/Users/dreamxyp/Transcend/happyuc-js/block/",
-    "happyucjs-testing": "/Users/dreamxyp/Transcend/happyuc-js/testing/",
     "istanbul": "^0.4.1",
     "levelup": "^1.3.0",
     "memdown": "^1.1.0",
-    "standard": "^8.4.0",
+    "standard": "^11.0.1",
     "tape": "^4.2.2"
   },
   "standard": {

@@ -1,2 +1,1 @@
-require('./block.js')
-require('./huchash.js')
+require('./block')

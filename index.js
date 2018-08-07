@@ -1,10 +1,10 @@
-const hucUtil = require('happyucjs-util')
-const hucHashUtil = require('./util.js')
+const ircUtil = require('icjs-util')
+const ichashUtil = require('./util.js')
 const xor = require('buffer-xor')
-const BN = hucUtil.BN
+const BN = ircUtil.BN
 const async = require('async')
 
-var Huchash = module.exports = function (cacheDB) {
+var Ichash = module.exports = function (cacheDB) {
   this.dbOpts = {
     valueEncoding: 'json'
   }
@@ -12,22 +12,22 @@ var Huchash = module.exports = function (cacheDB) {
   this.cache = false
 }
 
-Huchash.prototype.mkcache = function (cacheSize, seed) {
+Ichash.prototype.mkcache = function (cacheSize, seed) {
   // console.log('generating cache')
   // console.log('size: ' + cacheSize)
   // console.log('seed: ' + seed.toString('hex'))
-  const n = Math.floor(cacheSize / hucHashUtil.params.HASH_BYTES)
-  var o = [ethUtil.sha3(seed, 512)]
+  const n = Math.floor(cacheSize / ichashUtil.params.HASH_BYTES)
+  var o = [ircUtil.sha3(seed, 512)]
 
   var i
   for (i = 1; i < n; i++) {
-    o.push(ethUtil.sha3(o[o.length - 1], 512))
+    o.push(ircUtil.sha3(o[o.length - 1], 512))
   }
 
-  for (var _ = 0; _ < hucHashUtil.params.CACHE_ROUNDS; _++) {
+  for (var _ = 0; _ < ichashUtil.params.CACHE_ROUNDS; _++) {
     for (i = 0; i < n; i++) {
       var v = o[i].readUInt32LE(0) % n
-      o[i] = hucUtil.sha3(xor(o[(i - 1 + n) % n], o[v]), 512)
+      o[i] = ircUtil.sha3(xor(o[(i - 1 + n) % n], o[v]), 512)
     }
   }
 
@@ -35,70 +35,70 @@ Huchash.prototype.mkcache = function (cacheSize, seed) {
   return this.cache
 }
 
-Huchash.prototype.calcDatasetItem = function (i) {
+Ichash.prototype.calcDatasetItem = function (i) {
   const n = this.cache.length
-  const r = Math.floor(ethHashUtil.params.HASH_BYTES / hucHashUtil.params.WORD_BYTES)
-  var mix = new Buffer(this.cache[i % n])
+  const r = Math.floor(ichashUtil.params.HASH_BYTES / ichashUtil.params.WORD_BYTES)
+  var mix = Buffer.from(this.cache[i % n])
   mix.writeInt32LE(mix.readUInt32LE(0) ^ i, 0)
-  mix = hucUtil.sha3(mix, 512)
-  for (var j = 0; j < hucHashUtil.params.DATASET_PARENTS; j++) {
-    var cacheIndex = hucHashUtil.fnv(i ^ j, mix.readUInt32LE(j % r * 4))
-    mix = hucHashUtil.fnvBuffer(mix, this.cache[cacheIndex % n])
+  mix = ircUtil.sha3(mix, 512)
+  for (var j = 0; j < ichashUtil.params.DATASET_PARENTS; j++) {
+    var cacheIndex = ichashUtil.fnv(i ^ j, mix.readUInt32LE(j % r * 4))
+    mix = ichashUtil.fnvBuffer(mix, this.cache[cacheIndex % n])
   }
-  return hucUtil.sha3(mix, 512)
+  return ircUtil.sha3(mix, 512)
 }
 
-Huchash.prototype.run = function (val, nonce, fullSize) {
+Ichash.prototype.run = function (val, nonce, fullSize) {
   fullSize = fullSize || this.fullSize
-  const n = Math.floor(fullSize / hucHashUtil.params.HASH_BYTES)
-  const w = Math.floor(ethHashUtil.params.MIX_BYTES / hucHashUtil.params.WORD_BYTES)
-  const s = hucUtil.sha3(Buffer.concat([val, hucHashUtil.bufReverse(nonce)]), 512)
-  const mixhashes = Math.floor(ethHashUtil.params.MIX_BYTES / hucHashUtil.params.HASH_BYTES)
+  const n = Math.floor(fullSize / ichashUtil.params.HASH_BYTES)
+  const w = Math.floor(ichashUtil.params.MIX_BYTES / ichashUtil.params.WORD_BYTES)
+  const s = ircUtil.sha3(Buffer.concat([val, ichashUtil.bufReverse(nonce)]), 512)
+  const mixhashes = Math.floor(ichashUtil.params.MIX_BYTES / ichashUtil.params.HASH_BYTES)
   var mix = Buffer.concat(Array(mixhashes).fill(s))
 
   var i
-  for (i = 0; i < hucHashUtil.params.ACCESSES; i++) {
-    var p = hucHashUtil.fnv(i ^ s.readUInt32LE(0), mix.readUInt32LE(i % w * 4)) % Math.floor(n / mixhashes) * mixhashes
+  for (i = 0; i < ichashUtil.params.ACCESSES; i++) {
+    var p = ichashUtil.fnv(i ^ s.readUInt32LE(0), mix.readUInt32LE(i % w * 4)) % Math.floor(n / mixhashes) * mixhashes
     var newdata = []
     for (var j = 0; j < mixhashes; j++) {
       newdata.push(this.calcDatasetItem(p + j))
     }
 
     newdata = Buffer.concat(newdata)
-    mix = hucHashUtil.fnvBuffer(mix, newdata)
+    mix = ichashUtil.fnvBuffer(mix, newdata)
   }
 
-  var cmix = new Buffer(mix.length / 4)
+  var cmix = Buffer.alloc(mix.length / 4)
   for (i = 0; i < mix.length / 4; i = i + 4) {
-    var a = hucHashUtil.fnv(mix.readUInt32LE(i * 4), mix.readUInt32LE((i + 1) * 4))
-    var b = hucHashUtil.fnv(a, mix.readUInt32LE((i + 2) * 4))
-    var c = hucHashUtil.fnv(b, mix.readUInt32LE((i + 3) * 4))
+    var a = ichashUtil.fnv(mix.readUInt32LE(i * 4), mix.readUInt32LE((i + 1) * 4))
+    var b = ichashUtil.fnv(a, mix.readUInt32LE((i + 2) * 4))
+    var c = ichashUtil.fnv(b, mix.readUInt32LE((i + 3) * 4))
     cmix.writeUInt32LE(c, i)
   }
 
   return {
     mix: cmix,
-    hash: hucUtil.sha3(Buffer.concat([s, cmix]))
+    hash: ircUtil.sha3(Buffer.concat([s, cmix]))
   }
 }
 
-Huchash.prototype.cacheHash = function () {
-  return hucUtil.sha3(Buffer.concat(this.cache))
+Ichash.prototype.cacheHash = function () {
+  return ircUtil.sha3(Buffer.concat(this.cache))
 }
 
-Huchash.prototype.headerHash = function (header) {
-  return hucUtil.rlphash(header.slice(0, -2))
+Ichash.prototype.headerHash = function (header) {
+  return ircUtil.rlphash(header.slice(0, -2))
 }
 
 /**
  * Loads the seed and the cache given a block nnumber
  * @method loadEpoc
  * @param number Number
- * @param cm function
+ * @param cb function
  */
-Huchash.prototype.loadEpoc = function (number, cb) {
+Ichash.prototype.loadEpoc = function (number, cb) {
   var self = this
-  const epoc = hucHashUtil.getEpoc(number)
+  const epoc = ichashUtil.getEpoc(number)
 
   if (this.epoc === epoc) {
     return cb()
@@ -109,7 +109,7 @@ Huchash.prototype.loadEpoc = function (number, cb) {
   // gives the seed the first epoc found
   function findLastSeed (epoc, cb2) {
     if (epoc === 0) {
-      return cb2(ethUtil.zeros(32), 0)
+      return cb2(ircUtil.zeros(32), 0)
     }
 
     self.cacheDB.get(epoc, self.dbOpts, function (err, data) {
@@ -124,11 +124,11 @@ Huchash.prototype.loadEpoc = function (number, cb) {
   /* eslint-disable handle-callback-err */
   self.cacheDB.get(epoc, self.dbOpts, function (err, data) {
     if (!data) {
-      self.cacheSize = hucHashUtil.getCacheSize(epoc)
-      self.fullSize = hucHashUtil.getFullSize(epoc)
+      self.cacheSize = ichashUtil.getCacheSize(epoc)
+      self.fullSize = ichashUtil.getFullSize(epoc)
 
       findLastSeed(epoc, function (seed, foundEpoc) {
-        self.seed = hucHashUtil.getSeed(seed, foundEpoc, epoc)
+        self.seed = ichashUtil.getSeed(seed, foundEpoc, epoc)
         var cache = self.mkcache(self.cacheSize, self.seed)
         // store the generated cache
         self.cacheDB.put(epoc, {
@@ -141,30 +141,30 @@ Huchash.prototype.loadEpoc = function (number, cb) {
     } else {
       // Object.assign(self, data)
       self.cache = data.cache.map(function (a) {
-        return new Buffer(a)
+        return Buffer.from(a)
       })
       self.cacheSize = data.cacheSize
       self.fullSize = data.fullSize
-      self.seed = new Buffer(data.seed)
+      self.seed = Buffer.alloc(data.seed)
       cb()
     }
   })
   /* eslint-enable handle-callback-err */
 }
 
-Huchash.prototype._verifyPOW = function (header, cb) {
+Ichash.prototype._verifyPOW = function (header, cb) {
   var self = this
   var headerHash = this.headerHash(header.raw)
-  var number = hucUtil.bufferToInt(header.number)
+  var number = ircUtil.bufferToInt(header.number)
 
   this.loadEpoc(number, function () {
-    var a = self.run(headerHash, new Buffer(header.nonce, 'hex'))
+    var a = self.run(headerHash, Buffer.from(header.nonce, 'hex'))
     var result = new BN(a.hash)
-    cb(a.mix.toString('hex') === header.mixHash.toString('hex') && (ethUtil.TWO_POW256.div(new BN(header.difficulty)).cmp(result) === 1))
+    cb(a.mix.toString('hex') === header.mixHash.toString('hex') && (ircUtil.TWO_POW256.div(new BN(header.difficulty)).cmp(result) === 1))
   })
 }
 
-Huchash.prototype.verifyPOW = function (block, cb) {
+Ichash.prototype.verifyPOW = function (block, cb) {
   var self = this
   var valid = true
 

@@ -1,18 +1,18 @@
-const hucUtil = require('happyucjs-util')
+const ircUtil = require('icjs-util')
 const MR = require('miller-rabin')
-const BN = hucUtil.BN
+const BN = ircUtil.BN
 
 exports.params = {
   DATASET_BYTES_INIT: 1073741824, // 2^30
-  DATASET_BYTES_GROWTH: 8388608,  // 2 ^ 23
-  CACHE_BYTES_INIT: 16777216,     // 2**24          # bytes in dataset at genesis
-  CACHE_BYTES_GROWTH: 131072,     // 2**17  cache growth per epoch
-  CACHE_MULTIPLIER: 1024,         // Size of the DAG relative to the cache
-  EPOCH_LENGTH: 30000,            // blocks per epoch
-  MIX_BYTES: 128,                 // width of mix
-  HASH_BYTES: 64,                 // hash length in bytes
-  DATASET_PARENTS: 256,           // number of parents of each dataset element
-  CACHE_ROUNDS: 3,                // number of rounds in cache production
+  DATASET_BYTES_GROWTH: 8388608, // 2 ^ 23
+  CACHE_BYTES_INIT: 16777216, // 2**24          # bytes in dataset at genesis
+  CACHE_BYTES_GROWTH: 131072, // 2**17  cache growth per epoch
+  CACHE_MULTIPLIER: 1024, // Size of the DAG relative to the cache
+  EPOCH_LENGTH: 30000, // blocks per epoch
+  MIX_BYTES: 128, // width of mix
+  HASH_BYTES: 64, // hash length in bytes
+  DATASET_PARENTS: 256, // number of parents of each dataset element
+  CACHE_ROUNDS: 3, // number of rounds in cache production
   ACCESSES: 64,
   WORD_BYTES: 4
 }
@@ -51,7 +51,7 @@ exports.getEpoc = function (blockNumber) {
  */
 exports.getSeed = function (seed, begin, end) {
   for (var i = begin; i < end; i++) {
-    seed = hucUtil.sha3(seed)
+    seed = ircUtil.sha3(seed)
   }
   return seed
 }
@@ -61,7 +61,7 @@ var fnv = exports.fnv = function (x, y) {
 }
 
 exports.fnvBuffer = function (a, b) {
-  var r = new Buffer(a.length)
+  var r = Buffer.alloc(a.length)
   for (var i = 0; i < a.length; i = i + 4) {
     r.writeUInt32LE(fnv(a.readUInt32LE(i), b.readUInt32LE(i)), i)
   }
@@ -70,7 +70,7 @@ exports.fnvBuffer = function (a, b) {
 
 exports.bufReverse = function (a) {
   const length = a.length
-  var b = new Buffer(length)
+  var b = Buffer.alloc(length)
   for (var i = 0; i < length; i++) {
     b[i] = a[length - i - 1]
   }
