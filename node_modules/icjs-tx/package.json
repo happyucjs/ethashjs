@@ -1,6 +1,6 @@
 {
   "name": "icjs-tx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An simple module for creating, manipulating and signing irchain transactions",
   "main": "dist/index.js",
   "scripts": {

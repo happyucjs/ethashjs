@@ -32,7 +32,7 @@
     "async": "^2.1.2",
     "buffer-xor": "^2.0.1",
     "icjs-util": "^0.0.1",
-    "icjs-block": "git+https://github.com/icjs/icjs-block.git",
+    "icjs-block": "^0.0.1",
     "miller-rabin": "^4.0.0"
   },
   "devDependencies": {

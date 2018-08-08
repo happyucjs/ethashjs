@@ -68,4 +68,3 @@ module.exports = class FakeTransaction extends Transaction {
     return super.hash(includeSignature)
   }
 }
-
